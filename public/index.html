@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ark Mini App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; }
+    .container { text-align: center; padding: 20px; }
+    .btn { display: block; margin: 10px auto; padding: 15px; width: 80%;
+           background: #007bff; color: white; border-radius: 10px; border: none; font-size: 18px; }
+    .btn:hover { background: #0056b3; }
+    .header { font-size: 24px; margin: 20px; }
+    .ad-space { margin: 20px; padding: 15px; background: #ddd; border-radius: 10px; }
+    .section { display: none; }
+  </style>
+</head>
+<div class="container">
+  <!-- Banner Section -->
+  <div class="banner">
+    <img src="banner.jpg" alt="Ark Mini App Banner" />
+  </div>
+
+<body>
+  <div class="container">
+    <h1 class="header">👋 Welcome to Ark Mini App</h1>
+    <button class="btn" onclick="showSection('library')">📚 Library</button>
+    <button class="btn" onclick="showSection('word')">📖 Word of the Day</button>
+    <button class="btn" onclick="showSection('knee')">🙏 On Bended Knee</button>
+    <button class="btn" onclick="showSection('heart')">💔 Bleeding Heart</button>
+    <button class="btn" onclick="showSection('contact')">📞 Contact Us</button>
+
+    <div class="ad-space">[Advertisement Space]</div>
+
+    <!-- Sections -->
+    <div id="library" class="section"><h2>Library</h2><p>Explore resources here.</p></div>
+    <div id="word" class="section"><h2>Word of the Day</h2><p>Daily inspiration.</p></div>
+    <div id="knee" class="section"><h2>On Bended Knee</h2><p>Prayers and devotion.</p></div>
+    <div id="heart" class="section"><h2>Bleeding Heart</h2><p>Poems and reflections.</p></div>
+    <div id="contact" class="section"><h2>Contact Us</h2><p>Email: ark@example.com</p></div>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+    }
+  </script>
+</body>
+</html>
