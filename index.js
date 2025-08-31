@@ -1,20 +1,17 @@
 import express from "express";
 import { Telegraf, Markup } from "telegraf";
 import dotenv from "dotenv";
-import { Low } from "lowdb";
-import { JSONFile } from "lowdb/node.js";
+import { JSONFilePreset } from "lowdb/node";
 
 dotenv.config();
 
 const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// Setup DB
-const adapter = new JSONFile("db.json");
-const db = new Low(adapter, { users: [] });
-await db.read();
+// ---- Setup DB ----
+const db = await JSONFilePreset("db.json", { users: [] });
 
-// Helper functions
+// ---- Helper functions ----
 async function saveUser(userId, info) {
   const existing = db.data.users.find((u) => u.id === userId);
   if (existing) {
@@ -29,7 +26,7 @@ function getUser(userId) {
   return db.data.users.find((u) => u.id === userId);
 }
 
-// Commands
+// ---- Bot commands ----
 bot.start(async (ctx) => {
   const userId = ctx.from.id;
   await saveUser(userId, {
@@ -61,14 +58,16 @@ bot.action("MY_INFO", (ctx) => {
 
 bot.action("UPDATE_NAME", (ctx) => {
   ctx.reply("Please send me your new name ✍️");
-  bot.on("text", async (msgCtx) => {
+
+  // Listen for next message only (avoids multiple triggers)
+  bot.once("text", async (msgCtx) => {
     const newName = msgCtx.message.text;
     await saveUser(msgCtx.from.id, { name: newName });
     msgCtx.reply(`✅ Name updated to: ${newName}`);
   });
 });
 
-// Express setup for Render
+// ---- Express setup for Render ----
 app.use(express.json());
 app.use(bot.webhookCallback(`/bot${process.env.BOT_TOKEN}`));
 
