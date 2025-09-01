@@ -1,37 +1,57 @@
 import express from "express";
 import { Telegraf, Markup } from "telegraf";
 import dotenv from "dotenv";
-import { JSONFilePreset } from "lowdb/node";
+import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
-const app = express();
-const bot = new Telegraf(process.env.BOT_TOKEN);
-
-// ---- Setup DB ----
-const db = await JSONFilePreset("db.json", { users: [] });
-
-// ---- Helper functions ----
-async function saveUser(userId, info) {
-  const existing = db.data.users.find((u) => u.id === userId);
-  if (existing) {
-    Object.assign(existing, info);
-  } else {
-    db.data.users.push({ id: userId, ...info });
+// ----------------------------
+// MongoDB setup
+// ----------------------------
+async function connectDB() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("✅ Connected to MongoDB");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
   }
-  await db.write();
+}
+connectDB();
+
+const userSchema = new mongoose.Schema({
+  id: { type: Number, unique: true },
+  name: String,
+  joined: Date,
+});
+const User = mongoose.model("User", userSchema);
+
+async function saveUser(userId, info) {
+  let user = await User.findOne({ id: userId });
+  if (user) {
+    Object.assign(user, info);
+  } else {
+    user = new User({ id: userId, ...info });
+  }
+  await user.save();
 }
 
-function getUser(userId) {
-  return db.data.users.find((u) => u.id === userId);
+async function getUser(userId) {
+  return await User.findOne({ id: userId });
 }
 
-// ---- Bot commands ----
+// ----------------------------
+// Bot setup
+// ----------------------------
+const bot = new Telegraf(process.env.BOT_TOKEN);
+const awaitingNameUpdate = new Set();
+
 bot.start(async (ctx) => {
   const userId = ctx.from.id;
   await saveUser(userId, {
     name: ctx.from.first_name,
-    joined: Date.now(),
+    joined: new Date(),
   });
 
   ctx.reply(
@@ -39,38 +59,59 @@ bot.start(async (ctx) => {
     Markup.inlineKeyboard([
       [Markup.button.callback("ℹ️ My Info", "MY_INFO")],
       [Markup.button.callback("📝 Update Name", "UPDATE_NAME")],
+      [
+        Markup.button.webApp(
+          "🚀 Open Ark Mini App",
+          process.env.WEBAPP_URL // 🔗 loads index.html
+        ),
+      ],
     ])
   );
 });
 
-bot.action("MY_INFO", (ctx) => {
-  const user = getUser(ctx.from.id);
+bot.action("MY_INFO", async (ctx) => {
+  const user = await getUser(ctx.from.id);
   if (user) {
-    ctx.reply(
-      `👤 Name: ${user.name}\n📅 Joined: ${new Date(
-        user.joined
-      ).toLocaleString()}`
-    );
+    ctx.reply(`👤 Name: ${user.name}\n📅 Joined: ${user.joined.toLocaleString()}`);
   } else {
     ctx.reply("No data found for you.");
   }
 });
 
-bot.action("UPDATE_NAME", (ctx) => {
+bot.action("UPDATE_NAME", async (ctx) => {
+  awaitingNameUpdate.add(ctx.from.id);
   ctx.reply("Please send me your new name ✍️");
-
-  // Listen for next message only (avoids multiple triggers)
-  bot.once("text", async (msgCtx) => {
-    const newName = msgCtx.message.text;
-    await saveUser(msgCtx.from.id, { name: newName });
-    msgCtx.reply(`✅ Name updated to: ${newName}`);
-  });
 });
 
-// ---- Express setup for Render ----
+bot.on("text", async (ctx) => {
+  if (awaitingNameUpdate.has(ctx.from.id)) {
+    const newName = ctx.message.text;
+    await saveUser(ctx.from.id, { name: newName });
+    ctx.reply(`✅ Name updated to: ${newName}`);
+    awaitingNameUpdate.delete(ctx.from.id);
+  }
+});
+
+// ----------------------------
+// Express setup
+// ----------------------------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+
+// Serve frontend files
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Telegram webhook
 app.use(express.json());
 app.use(bot.webhookCallback(`/bot${process.env.BOT_TOKEN}`));
 
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
