@@ -16,12 +16,25 @@
     .section { display: none; }
   </style>
 </head>
-<div class="container">
   <!-- Banner Section -->
-  <div class="banner">
-    <img src="banner.jpg" alt="Ark Mini App Banner" />
-  </div>
+    
+<div class="banner-container">
+  <img src="banner.png" alt="The Ark Banner" class="banner-img" />
+</div>
 
+<style>
+  .banner-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .banner-img {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+</style>
 <body>
   <div class="container">
     <h1 class="header">👋 Welcome to Ark Mini App</h1>
