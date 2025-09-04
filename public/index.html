@@ -33,7 +33,7 @@
     .message-content {
       display: inline-block;
       padding-left: 100%;
-      animation: scrollText 12s linear infinite;
+      animation: scrollText 5s linear infinite;
     }
 
     @keyframes scrollText {
@@ -46,7 +46,7 @@
 
   <!-- Floating Message Bar -->
   <div class="message-bar">
-    <span id="message" class="message-content">Loading message...</span>
+    <span id="message" class="message-content">Stay safe why staying blessed.</span>
   </div>
 
   <div class="container" style="margin-top: 60px;">
@@ -60,18 +60,18 @@
     <div class="ad-space">[Advertisement Space]</div>
 
     <!-- Sections -->
-    <div id="library" class="section"><h2>Library</h2><p>Explore resources here.</p></div>
+    <div id="library" class="section"><h2>Library</h2><p>Explore</p></div>
     <div id="word" class="section"><h2>Word of the Day</h2><p>Daily inspiration.</p></div>
     <div id="knee" class="section"><h2>On Bended Knee</h2><p>Prayers and devotion.</p></div>
     <div id="heart" class="section"><h2>Bleeding Heart</h2><p>Poems and reflections.</p></div>
-    <div id="contact" class="section"><h2>Contact Us</h2><p>Email: ark@example.com</p></div>
+    <div id="contact" class="section"><h2>Contact Us</h2><p>Email: bisoken234@gmail.com</p></div>
   </div>
 
   <script>
     // Load message from external file
     async function loadMessage() {
       try {
-        const response = await fetch('message.txt'); // or 'message.json'
+        const response = await fetch('message.json'); // or 'message.json'
         const text = await response.text();
         document.getElementById('message').textContent = text;
       } catch (err) {
