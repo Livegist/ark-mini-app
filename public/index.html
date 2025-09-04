@@ -18,7 +18,7 @@
     /* Floating Message Bar */
     .message-bar {
       position: fixed;
-      top: 0; /* Change to bottom: 0; if you want it at bottom */
+      top: 0; /* change to bottom: 0; if you want it at bottom */
       left: 0;
       width: 100%;
       background: #222;
@@ -37,18 +37,17 @@
     }
 
     @keyframes scrollText {
-      0% { transform: translateX(100%); }
+      0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
 
-<!-- Floating Message Container -->
-<div id="floating-message" class="hidden">
-  <span id="message-text">Loading message...</span>
-  <button id="close-btn">×</button>
-</div>
+  <!-- Floating Message Bar -->
+  <div class="message-bar">
+    <span id="message" class="message-content">Loading message...</span>
+  </div>
 
   <div class="container" style="margin-top: 60px;">
     <h1 class="header">👋 Welcome to Ark Mini App</h1>
@@ -65,26 +64,22 @@
     <div id="word" class="section"><h2>Word of the Day</h2><p>Daily inspiration.</p></div>
     <div id="knee" class="section"><h2>On Bended Knee</h2><p>Prayers and devotion.</p></div>
     <div id="heart" class="section"><h2>Bleeding Heart</h2><p>Poems and reflections.</p></div>
-    <div id="contact" class="section"><h2>Contact Us</h2><p>Email: bisoken234@gmail.com</p></div>
+    <div id="contact" class="section"><h2>Contact Us</h2><p>Email: ark@example.com</p></div>
   </div>
 
   <script>
-    // Load message from external JSON file
+    // Load message from external file
     async function loadMessage() {
       try {
-        const response = await fetch('message.json?cache=' + Date.now()); // avoid caching
-        const data = await response.json();
-        document.getElementById('message').textContent = data.message;
+        const response = await fetch('message.txt'); // or 'message.json'
+        const text = await response.text();
+        document.getElementById('message').textContent = text;
       } catch (err) {
         document.getElementById('message').textContent = "Unable to load message.";
       }
     }
 
-    // Load message on page load
     loadMessage();
-
-    // Auto-refresh message every 60 seconds
-    setInterval(loadMessage, 60000);
 
     // Show sections
     function showSection(id) {
