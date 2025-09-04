@@ -62,6 +62,8 @@ async function getUser(userId) {
   return await User.findOne({ id: userId });
 }
 
+const express = require('express');
+const path = require('path');
 // ----------------------------
 // Bot setup
 // ----------------------------
